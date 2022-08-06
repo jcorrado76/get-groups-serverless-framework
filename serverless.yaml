@@ -72,6 +72,14 @@ functions:
           path: groups/{groupId}/images
           cors: true
 
+  GetImage:
+    handler: src/lambda/http/getImage.handler
+    events:
+      - http:
+          method: get
+          path: images/{imageId}
+          cors: true
+
 resources:
   Resources:
 
