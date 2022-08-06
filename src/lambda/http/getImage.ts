@@ -10,58 +10,35 @@ const imageIdIndex = process.env.IMAGE_ID_INDEX
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     console.log('Caller event: ', event)
 
-    const groupId = event.pathParameters.groupId
+    const imageId = event.pathParameters.imageId
 
-    const isValidGroupId = await groupExists(groupId)
+    const result = await docClient.query({
+        TableName: imagesTable,
+        IndexName: imageIdIndex,
+        KeyConditionExpression: 'imageId = :imageId',
+        ExpressionAttributeValues: {
+            ':imageId': imageId
+        }
+    }).promise()
 
-    if (!isValidGroupId) {
+    if (result.Count !== 0) {
         return {
-            statusCode: 404,
+            statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*'
             },
-            body: JSON.stringify({
-                error: `Group ${groupId} does not exist`
-            })
+            body: JSON.stringify(result.Items[0])
         }
     }
 
-    const images = await getImagesPerGroup(groupId)
-
     return {
-        statusCode: 200,
+        statusCode: 404,
         headers: {
             'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({
-            items: images
+            error: `Image ${imageId} does not exist`
         })
     }
 
-}
-
-async function groupExists(groupId: string) {
-    const result = await docClient.get({
-        TableName: groupsTable,
-        Key: {
-            id: groupId
-        }
-    }).promise()
-
-    console.log('Get group: ', result)
-
-    return !!result.Item
-}
-
-async function getImagesPerGroup(groupId: string) {
-    const result = await docClient.query({
-        TableName: imagesTable,
-        KeyConditionExpression: 'groupId = :groupId',
-        ExpressionAttributeValues: {
-            ':groupId': groupId
-        },
-        ScanIndexForward: false
-    }).promise()
-
-    return result.Items
 }
