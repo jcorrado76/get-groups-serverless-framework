@@ -2,6 +2,8 @@ service: serverless-udagram-app
 
 plugins:
   - serverless-esbuild
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
 
 provider:
   name: aws
