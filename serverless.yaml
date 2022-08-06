@@ -63,6 +63,14 @@ functions:
             requestModels:
               'application/json': GroupRequest
 
+  GetImages:
+    handler: src/lambda/http/getImages.handler
+    events:
+      - http:
+          method: get
+          path: groups/{groupId}/images
+          cors: true
+
 resources:
   Resources:
 
