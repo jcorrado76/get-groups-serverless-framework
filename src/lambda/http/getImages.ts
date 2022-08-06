@@ -11,14 +11,56 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     const groupId = event.pathParameters.groupId
 
+    const isValidGroupId = await groupExists(groupId)
+
+    if (!isValidGroupId) {
+        return {
+            statusCode: 404,
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                error: 'Group does not exist'
+            })
+        }
+    }
+
+    const images = await getImagesPerGroup(groupId)
+
     return {
-        statusCode: 201,
+        statusCode: 200,
         headers: {
             'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({
-            items: []
+            items: images
         })
     }
 
+}
+
+async function groupExists(groupId: string) {
+    const result = await docClient.get({
+        TableName: groupsTable,
+        Key: {
+            id: groupId
+        }
+    }).promise()
+
+    console.log('Get group: ', result)
+
+    return !!result.Item
+}
+
+async function getImagesPerGroup(groupId: string) {
+    const result = await docClient.query({
+        TableName: imagesTable,
+        KeyConditionExpression: 'groupId = :groupId',
+        ExpressionAttributeValues: {
+            ':groupId': groupId
+        },
+        ScanIndexForward: false
+    }).promise()
+
+    return result.Items
 }
