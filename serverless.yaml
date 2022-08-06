@@ -14,6 +14,7 @@ provider:
 
   environment:
     GROUPS_TABLE: Groups-${self:provider.stage}
+    IMAGES_TABLE: Images-${self:provider.stage}
 
   iamRoleStatements:
     - Effect: Allow
@@ -21,6 +22,10 @@ provider:
         - dynamodb:Scan
         - dynamodb:PutItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.GROUPS_TABLE}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: arn:aws:dynamodb:${self.provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}
 
 custom:
   documentation:
