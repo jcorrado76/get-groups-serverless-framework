@@ -109,6 +109,9 @@ functions:
             requestModels:
               'application/json': ImageRequest
 
+  SendUploadNotifications:
+    handler: src/lambda/s3/sendNotifications.handler
+
 resources:
   Resources:
     AttachmentsBucket:
