@@ -34,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const imageId = uuid.v4()
     const newItem = await createImage(groupId, imageId, event)
 
-    const url = getUploadUrl(imageId)
+    const url = getUploadUrl(`images/${imageId}.png`)
 
     return {
         statusCode: 201,
@@ -83,10 +83,10 @@ async function createImage(groupId: string, imageId: string, event: any) {
     return newItem
 }
 
-function getUploadUrl(imageId: string) {
+function getUploadUrl(object_key: string) {
     return s3.getSignedUrl('putObject', {
         Bucket: bucketName,
-        Key: imageId,
+        Key: object_key,
         Expires: parseInt(urlExpiration)
     })
 }
